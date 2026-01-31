@@ -10,11 +10,11 @@
 \usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
 \usepackage{graphicx,pstricks,listings,stackengine}
 
-\author{Alfred Bao}
+\author{DrAlfred}
 \title{2026 年寒假讲题}
-\subtitle{DP 篇}
+\subtitle{DP 及其优化}
 \institute{上海市曹杨第二中学 maze.size()}
-\date{2026年02月xx日}
+\date{2026年02月08日}
 \usepackage{CNU}
 
 % defs
@@ -40,10 +40,28 @@
     \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
 \end{frame}
 
+\section{序言}
+\begin{frame}{序言}
+\begin{itemize}
+    \item 大家能来到这里说明肯定对 DP 有一定的了解，本节课主要是教大家一些状态设计和优化手法。
+    \item 讲者很菜。Luogu: $583610$，QQ: $229882561$，欢迎联系交流。
+    \item 大家需要课件和配套资料可以访问 \url{https://github.com/CYEZOI/2026-Winter-OI} 或者 \url{https://share.alfredbao.cn/}。
+    \item 接下来的 3h 祝大家 GL and HF，有问题随时提问！
+\end{itemize}
+\end{frame}
+
 
 \section{常见的 DP 模型}
 \subsection{背包 DP}
-\begin{frame}
+\begin{frame}{基础类型}
+    以下 $n$ 为物品个数，$m$ 为背包容量。
+    \begin{itemize}
+        \item 0-1背包或完全背包，时间复杂度 $O(nm)$。
+        \item 多重背包，时间复杂度 $O(nm)$（单调队列优化）或 $O(nm \log m)$（二进制分组）。
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{进阶类型}
     \begin{itemize}
         \item asdasd
     \end{itemize}
@@ -77,11 +95,12 @@
 \subsection{WQS 二分}
 
 \section{致谢}
-\begin{frame}
+\begin{frame}{致谢}
     \begin{itemize}
-        \item 感谢曹杨二中 OI 教练组提供的本次交流机会
-        \item 感谢同学们几个小时的认真听讲
-        \item 感谢我的同学兼 ICPC 队友 JoeyJ 提供的优质例题
+        \item 感谢曹杨二中 OI 教练组提供的本次交流机会；
+        \item 感谢同学们几个小时的认真听讲；
+        \item 感谢我的同学兼 XCPC 队（maze.size()）友 JoeyJ 提供的优质例题。
+        \item 感谢 YeahPotato 的优秀文章《dp 题方法总汇》提供的灵感。
     \end{itemize}
 \end{frame}
 
