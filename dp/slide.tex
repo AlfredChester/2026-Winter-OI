@@ -12,7 +12,7 @@
 
 \author{DrAlfred}
 \title{2026 年寒假讲题}
-\subtitle{DP 及其优化}
+\subtitle{浅谈 DP 及其优化}
 \institute{上海市曹杨第二中学 maze.size()}
 \date{2026年02月08日}
 \usepackage{CNU}
@@ -42,43 +42,28 @@
 
 \section{序言}
 \begin{frame}{序言}
-\begin{itemize}
-    \item 大家能来到这里说明肯定对 DP 有一定的了解，本节课主要是教大家一些状态设计和优化手法。
-    \item 讲者很菜。Luogu: $583610$，QQ: $229882561$，欢迎联系交流。
-    \item 大家需要课件和配套资料可以访问 \url{https://github.com/CYEZOI/2026-Winter-OI} 或者 \url{https://share.alfredbao.cn/}。
-    \item 接下来的 3h 祝大家 GL and HF，有问题随时提问！
-\end{itemize}
-\end{frame}
-
-
-\section{常见的 DP 模型}
-\subsection{背包 DP}
-\begin{frame}{基础类型}
-    以下 $n$ 为物品个数，$m$ 为背包容量。
     \begin{itemize}
-        \item 0-1背包或完全背包，时间复杂度 $O(nm)$。
-        \item 多重背包，时间复杂度 $O(nm)$（单调队列优化）或 $O(nm \log m)$（二进制分组）。
+        \item 大家能来到这里说明肯定对 DP 有一定的了解，本节课主要是教大家一些状态设计和优化手法。
+        \item 讲者很菜。Luogu: $583610$，QQ: $229882561$，欢迎联系交流。
+        \item 大家需要课件和配套资料可以访问 \url{https://github.com/CYEZOI/2026-Winter-OI} 或者 \url{https://share.alfredbao.cn/}。
+        \item 接下来的 3h 祝大家 GL and HF，有问题随时提问！
+    \end{itemize}
+\end{frame}
+\begin{frame}{如何定义 DP}
+    \begin{itemize}
+        \item 我讲之前，大家可以先说说自己的想法。 
+    \end{itemize}   
+\end{frame}
+\begin{frame}{如何定义 DP}
+    \begin{itemize}
+        \item DP 实际上是一个分步生成解的自动机结构。我们通过分步生成解把指数级搜索空间压缩到多项式级别，找到解的某种权值经过某种运算后的结果。
+        \item 这种情况下的 DP 大致有三类：最优化、计数、判定。在所有合法解不漏的前提下，它们需要满足的关键条件是：最优子结构、不计重、无后效性。
+        \item 广义上来说，习惯于将大部分用递推解决问题的方法都称作 DP。
+        \item 如果可以找到一种生成方式，能恰好（逐步）刻画出所有满足条件的解，并且中途为了判定符合条件以及为了辅助求出权值所记录的信息是局部的或可能性较少的，那就有机会使用 DP。
     \end{itemize}
 \end{frame}
 
-\begin{frame}{进阶类型}
-    \begin{itemize}
-        \item asdasd
-    \end{itemize}
-\end{frame}
-
-\subsection{树形 DP}
-
-\subsection{数位 DP}
-% \subsection{先想所有题}
-% \begin{frame}{先想所有题（20-40分钟）}
-%     \begin{itemize}
-%         \item 逐字读完每个题，尤其注意数据范围以及每行开头结尾是否有容易忽略的信息。（可以思想验证小样例。）
-%         \item 每个题自由想10分钟左右。如果还没想出来，记录题目的研究对象、可能的寻找特例角度（特别是部分分）等认识。
-%         \item 再想想，直到时间足够或者没进展了。
-%         \item 最终，这一部分需要对每个题想出一个有效算法，（正解，或者暴力+性质）。
-%     \end{itemize}
-% \end{frame}
+\section{常见结构的技巧}
 
 \section{DP 状态设计手法}
 \subsection{延后决策}
