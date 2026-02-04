@@ -46,7 +46,7 @@
         \item 大家能来到这里说明肯定对 DP 有一定的了解，本节课主要是教大家一些状态设计和优化手法。
         \item 讲者很菜。Luogu: $583610$，QQ: $229882561$，欢迎联系交流。
         \item 大家需要课件和配套资料可以访问 \url{https://github.com/CYEZOI/2026-Winter-OI} 或者 \url{https://share.alfredbao.cn/}。
-        \item 接下来的 3h 祝大家 GL and HF，有问题随时提问！
+        \item 接下来的 3h 祝大家 GL \& HF，有问题随时提问！
     \end{itemize}
 \end{frame}
 \begin{frame}{如何定义 DP}
@@ -63,29 +63,92 @@
     \end{itemize}
 \end{frame}
 
-\section{常见结构的技巧}
+\section{基于特殊结构的技巧}
+\begin{frame}{括号序列}
+    
+\end{frame}
+% \subsection{括号序列}
+% \subsection{排列}
+% \subsection{背包}
+% \subsection{概率 \& 期望}
+% \subsection{树形}
+% \subsection{平面}
 
-\section{DP 状态设计手法}
-\subsection{延后决策}
-
-\subsection{减少状态杂说}
+% \section{DP 状态设计手法}
+% \subsection{延后决策}
+% \subsection{减少状态杂说}
 
 \section{常见的 DP 优化}
-\subsection{决策单调性优化}
+\begin{frame}{开始优化之前}
+    先对自己进行一些灵魂拷问：
+    \begin{itemize}
+        \item 你找全这个结构的性质了吗？
+        \item 你找对该对着 DP 的对象了吗？有没有可以解构的地方？
+        \item 你设计的 DP 状态已经尽可能少了吗？
+    \end{itemize}
+    主要思考以下几个方面：
+    \begin{itemize}
+        \item 寻找可以直接从题目条件导出，或与题目条件等价的条件；
+        \item 模拟（包括打表）小样例、特殊样例找到简化的方向和规律；
+        \item 另外，如果解是一个过程，有时倒推一些必要的东西会比较容易。
+        \item 联想一些与题目条件相关或类似的模型，尝试套用。
+    \end{itemize}
+    毕竟，最好的优化是不用其他优化。
+\end{frame}
+\begin{frame}{开始优化之前}
+    \begin{block}{QOJ 16228 Sum of Three Inversions}
+    给定长度 $n$，三个常数 $x, y, k$，计数下列序列三元组 $(A, B, C)$ 的个数：
 
-\subsection{斜率优化}
+    \begin{itemize}
+        \item $A, B, C$ 均为长度为 $n$ 的序列；
+        \item $\forall i \in [1, n], (A_i, B_i, C_i)$ 是 $(1, 2, 3)$ 的一个排列。
+        \item $A$ 中恰好有 $x$ 个 $1$，$y$ 个 $2$。
+        \item 序列 $A, B, C$ 中的逆序对总数为 $k$。
+    \end{itemize}
 
-\subsection{Slope trick}
+    $n \le 50$，答案对给定的常数 $m$ 取模。
+    \end{block}
 
-\subsection{WQS 二分}
+    尝试写出所有你认识到的性质。你能做到的最优复杂度是什么？
+\end{frame}
+\begin{frame}{开始优化之前}
+    \begin{block}{Solution}
+    \begin{itemize}
+        \item 可以直接对 $D_i = (A_i, B_i, C_i)$ 计数。发现大多数长度为 $3$ 的排列前后之间可以贡献的逆序对数量为 $1$，相同的排列之间贡献为 $0$，有一些排列前后之间可以贡献 $2$ 个逆序对；
+        \item 可设 $f_{c_1, c_2, c_3, i}$ 表示现在分别有 $c_1, c_2, c_3$ 个组内的第一个为 $1$ 排列，第一个为 $2$ 排列，第一个为 $3$ 排列，当前逆序对贡献为 $i$ 的方案数。只有组内可能贡献 $2$ 或 $0$ 个逆序对。考虑设定基准贡献为一个逆序对，那么特殊的对之间的贡献就变成 $+1$ 或 $-1$ 了，而组间没有贡献，两组内的结构是相同的。
+    \end{itemize}
+    \end{block}
+\end{frame}
+\begin{frame}{开始优化之前}
+    \begin{block}{Solution}
+    \begin{itemize}
+        \item 转移是容易的，然后考虑把第一组插入到第二组里面。最终答案为：
+
+        $$
+        \sum_{a = 0}^x \sum_{b = 0}^y \sum_{c = 0}^z \sum_{i = -\frac{n(n-1)}{2}}^{\frac{n(n-1)}{2}} \binom{n}{a + b + c} f_{a, b, c, i} f_{x - a, y - b, z - c, k - i}
+        $$
+
+        \item 时空复杂度为 $O(n^5)$，真能跑满吗？
+
+            分析一下，$c_1 + c_2 + c_3 \le n$，取值方案只有 $\binom{n + 3}{3}$ 种。再加上 $-\binom{c_1 + c_2 + c_3}{2} \le i \le \binom{c_1 + c_2 + c_3}{2}$。实测状态数大概只有 $10^7$ 左右。
+    \end{itemize}
+    \end{block}
+\end{frame}
+\begin{frame}{状态数的自简化}
+    
+\end{frame}
+% \subsection{决策单调性优化}
+% \subsection{斜率优化}
+% \subsection{Slope trick}
+% \subsection{WQS 二分}
 
 \section{致谢}
 \begin{frame}{致谢}
     \begin{itemize}
         \item 感谢曹杨二中 OI 教练组提供的本次交流机会；
-        \item 感谢同学们几个小时的认真听讲；
-        \item 感谢我的同学兼 XCPC 队（maze.size()）友 JoeyJ 提供的优质例题。
+        \item 感谢同学们三个小时的认真听讲；
         \item 感谢 YeahPotato 的优秀文章《dp 题方法总汇》提供的灵感。
+        \item 感谢我的同学兼 XCPC 队（maze.size()）友 JoeyJ 提供的优质例题。
     \end{itemize}
 \end{frame}
 
