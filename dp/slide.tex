@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{tabularx} % 请在导言区添加此包
 
 
 % other packages
@@ -64,21 +65,260 @@
 \end{frame}
 
 \section{基于特殊结构的技巧}
+
 \begin{frame}{括号序列}
-    
+    \begin{block}{生成思路}
+    括号序列的生成思路一般有以下几种：
+    \begin{enumerate}
+        \item 直接按下标，记录当前多的 \texttt{(} 数。
+        \item 按外层配对括号 \texttt{(...)(...)...(...)} 拆开。
+        \item 拆第一对配对括号，剩下视作整体 \texttt{(...)...}。
+        \item 视作折线，进行容斥。
+    \end{enumerate}
+    \end{block}
+    \begin{itemize}
+        \item 方式 2、3 是直接对着定义 DP，3 可以理解成对括号树三度化再 DP
+        \item 方式 2 在最优化问题下可以随便选一个断点拆
+    \end{itemize}
 \end{frame}
-% \subsection{括号序列}
-% \subsection{排列}
-% \subsection{背包}
-% \subsection{概率 \& 期望}
-% \subsection{树形}
-% \subsection{平面}
+
+\begin{frame}{括号序列：类括号序列}
+    \begin{block}{01 序列技巧}
+    如果有一些 0 和一些 1，每个都有权值，要选一个子集 01 数量相同，最优化权值相关某个东西：
+    \begin{itemize}
+        \item 可以把元素随机打乱再 DP
+        \item 记录当前 0 比 1 多多少
+        \item 这一维可以只开到 $\Theta(\sqrt{n})$
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{排列：基本生成顺序}
+    这一节侧重于排列未知的情况。参照 YeahPotato 的课件，最基本的排列生成顺序如下：
+
+    \begin{table}
+        \centering
+        \small % 适当缩小字号以适应幻灯片
+        \begin{tabularx}{\textwidth}{|c|X|X|}
+        \hline
+            & \textbf{预定（绝对）} & \textbf{插入（相对）} \\ \hline
+        \textbf{按下标} & 从左往右逐一确定值 & 从左往右逐一确定当前值在前缀中排第几大 \\ \hline
+        \textbf{按值} & 从小到大逐一确定位置 & 从小到大逐一插入排列 \\ \hline
+        \end{tabularx}
+    \end{table}
+    排列的关键是找到一个生成顺序，使得已生成部分的数不需要逐个记录，而只需抽象成少量的几个量。
+\end{frame}
+
+\begin{frame}{排列：典型应用}
+    \begin{block}{应用类型}
+    \begin{enumerate}
+        \item 只对一个单调子序列 DP，剩余部分直接用组合数确定
+            \begin{itemize}
+                \item 属于按值、断点
+            \end{itemize}
+        \item 基于笛卡尔树或类似笛卡尔树的分治结构
+            \begin{itemize}
+                \item 合并时确定相对大小，乘组合数
+                \item 属于按值、预定、单步
+            \end{itemize}
+    \end{enumerate}
+    \end{block}
+    
+    确定了主要元素（某个单调子序列），剩余元素必须出现在某个主要元素前或后时：
+    \begin{itemize}
+        \item 为了使状态维数小，就对主要元素 DP
+        \item 剩余元素的位置在对应的主要元素被 DP 到时用数学方法确定
+        \item 限制方向与 DP 方向相同则用预定法，否则用插入法
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{背包：基础技巧}
+    \begin{block}{基础背包技巧}
+    \begin{enumerate}
+        \item 多重背包的二进制拆分和同余转移
+        \item 换维：价值较小时可以定义状态为得到 $i$ 的价值至少要多少重量
+        \item 物品大小和有限制时只有根号种物品
+        \item 无序整数拆分相关：
+            \begin{itemize}
+                \item "全体 +1 \& 新开一个"的转移方式
+                \item 按下标 DP 总状态数为 $n^2\ln n$
+            \end{itemize}
+        \item 从 GF（生成函数）角度考虑
+        \item 同余最短路
+    \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{背包：高级技巧（仅用于最优化）}
+    \begin{block}{完全背包的倍增方法}
+    当容量 $T$ 很大，最大重量 $W$ 较小时：
+    \begin{itemize}
+        \item 通过将解按重量排序交替放，可证明一定能将解拆成两个总重量差 $\le W$ 的部分
+        \item 求出 $[T-W,T+W]$ 的最优解可以 $O(W^2)$ 递推到 $[2T-W,2T+W]$
+        \item 复杂度：$O(nT)\rightarrow O(W^2\log T)$
+    \end{itemize}
+    \end{block}
+\end{frame}
+    
+\begin{frame}{背包：高级技巧（仅用于最优化）}
+    \begin{block}{背包的贪心性质}
+    按性价比贪心选直到第一次遇到无法选的物品就停止，设选出的物品集合为 $G$，最优解为 $O$：
+    \begin{itemize}
+        \item 性质：存在 $O$ 使 $|G\oplus O|\le 2W$
+        \item 只需一个状态数为 $4W^2$ 的背包即可
+        \item 复杂度：$O(nT)\rightarrow O(nW^2)$
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{状压 DP：优化技巧}
+    状压 DP 的难点主要在两块：刻画生成过程和优化。
+    
+    \begin{block}{meet-in-the-middle 技巧}
+    如果转移时要考虑两个数之间的某个位运算，可以两者分别枚举一半。
+    \end{block}
+    
+    \begin{block}{几个经典的转移形式（$\sqcup$ 表示不交并）}
+    \begin{enumerate}
+        \item $g_i=\sum_{j\sqcup k=i}f_jg_k$：半在线子集卷积，$O(n^22^n)$
+        \item $g_i=T_i\left(\sum_{j\sqcup k=i}f_jg_k\right)$：按 $|i|$ 从小到大处理，$O(n^22^n)$
+        \item $g_i=\sum_{j\sqcup k=i,h(j)=h(i)}f_jg_k$：全集的无序划分，$O(n^22^n)$
+        \item $g_i=T_i\left(\sum_{j\subset i}g_j\right)$：按最高位 01 分治，$O(n2^n)$
+    \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{概率与期望 DP：状态定义}
+    \begin{alertblock}{经典困惑}
+    为什么设计 DP 状态必须是"当前状态到达终止状态"的概率或期望，而不能是"从初始状态到当前状态"？
+    \end{alertblock}
+    
+    \begin{block}{根本原因}
+    \begin{itemize}
+        \item 没有澄清 DP 的对象
+        \item 普通计数 DP 可以设计"从初始状态到当前状态"
+        \item 但期望 DP 会有歧义：条件期望 vs 期望和
+        \item 转移是要乘概率的，导致转移意义与状态意义不符
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{推荐方案}
+    设计成"当前状态到达终止状态"可以避免这些问题，从而比较简洁地直接转移。
+    \end{block}
+\end{frame}
+
+\begin{frame}{概率与期望 DP：技巧}
+    \begin{block}{计数转概率/期望}
+    某些计数问题可以通过转成求概率或期望来简化转移公式：
+    \begin{itemize}
+        \item 直接 DP 需要记方案数和总和
+        \item 化成期望 DP，方案数直接变成恒为 $1$ 的概率
+        \item 可以忽略结构中对状态没有影响的元素
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{期望的拆分}
+    $$E[\text{总数}]=E[\text{轮数}]\cdot E[\text{单轮数}]$$
+    当满足独立性时，可以分别计算后相乘。
+    \end{block}
+\end{frame}
+
+\begin{frame}{数位 DP：基本思路与技巧}  
+    \begin{block}{全体 $+x$ 的最优化问题}
+    考虑逐位 DP，记录进位的分界线：
+    \begin{itemize}
+        \item 如果当前确定的是低 $i$ 位
+        \item 一定是所有数按低 $i$ 位排序后的一个后缀进位
+        \item 转移时先基数排序，再枚举进位分界，得到下一位每种数占的区间
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{重要模型}
+    考虑函数 $f(S)=\{\lfloor x/2\rfloor,\lceil x/2\rceil\mid x\in S\}$：
+    \begin{itemize}
+        \item $f^{(i)}(\{x\})$ 的大小至多为 $2$
+        \item $f^{(i)}(\{x\})=\{\lfloor x/2^i\rfloor,\lceil x/2^i\rceil\}$
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{树形 DP：设计思路与技巧}
+    \begin{block}{基本设计思路}
+    \begin{itemize}
+        \item 考虑加一条边和合并两个儿子
+        \item 把状态和转移定出来
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{比较初级的技巧}
+    \begin{enumerate}
+        \item 换根 DP
+        \item 多儿子选择时的反悔技巧
+        \item 树上背包
+            \begin{itemize}
+                \item 如果强制大小与 $k$ 取 $\min$，时间是 $O(nk)$ 的
+            \end{itemize}
+    \end{enumerate}
+    \end{block}
+    
+    \begin{block}{另一种 DP 方式}
+    在 DFS 序上跳
+    \end{block}
+\end{frame}
+
+\begin{frame}{树形 DP：树上背包复杂度证明}
+    \begin{block}{$O(nk)$ 复杂度证明}
+    采用树分块的思路：
+    \begin{itemize}
+        \item 子树 $\text{siz}\le k$ 的点称为小点，剩余称为大点
+        \item 小点：每个极大的小点子树都是 $O(\text{siz}^2)$，由均值不等式至多 $O(nk)$
+        \item 小点顶部转移给大点：$O(\text{siz}\cdot k)$，共 $O(nk)$
+        \item 大点之间：两个大点合并为 $O(k^2)$，合并共发生 $O(n/k)$ 次，也是 $O(nk)$
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{区间 DP}
+    这部分不是指区间 DP，而是某些给定若干区间然后选的问题。
+    
+    \begin{block}{初步处理方式}
+    \begin{enumerate}
+        \item 按某个端点排序
+        \item 处理掉一些区间使得左右端点同时递增
+        \item 或只有包含和相离情况
+    \end{enumerate}
+    \end{block}
+    
+    \begin{alertblock}{特点}
+    这类问题较罕见，一个合理的状态能给出极好的无关性。
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{数学方法在 DP 中的应用}
+    \begin{block}{何时推式子 vs 何时 DP}
+    \begin{itemize}
+        \item 推式子往往需要更透彻的对模型的分析
+        \item 可以利用各种数学工具得到不依赖于组合意义的、更本质的解法
+        \item 但有时 DP 的复杂度反而更优
+        \item 两者的分界并不明确
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{可以机械化的优化}
+    \begin{enumerate}
+        \item 矩乘相关：行列式、特征多项式、对角化等
+        \item 常系数线性递推
+        \item 整式递推
+    \end{enumerate}
+    \end{block}
+\end{frame}
 
 % \section{DP 状态设计手法}
 % \subsection{延后决策}
 % \subsection{减少状态杂说}
 
 \section{常见的 DP 优化}
+
 \begin{frame}{开始优化之前}
     先对自己进行一些灵魂拷问：
     \begin{itemize}
@@ -93,8 +333,11 @@
         \item 另外，如果解是一个过程，有时倒推一些必要的东西会比较容易。
         \item 联想一些与题目条件相关或类似的模型，尝试套用。
     \end{itemize}
+    \begin{alertblock}{记住}
     毕竟，最好的优化是不用其他优化。
+    \end{alertblock}
 \end{frame}
+
 \begin{frame}{开始优化之前}
     \begin{block}{QOJ 16228 Sum of Three Inversions}
     给定长度 $n$，三个常数 $x, y, k$，计数下列序列三元组 $(A, B, C)$ 的个数：
@@ -111,7 +354,9 @@
 
     尝试写出所有你认识到的性质。你能做到的最优复杂度是什么？
 \end{frame}
-\begin{frame}{开始优化之前}
+
+\begin{frame}{状态数的自简化}
+    有时，真正可能 DP 到的状态远少于 DP 状态每一维最大值之积。可能使用记搜简化代码。
     \begin{block}{Solution}
     \begin{itemize}
         \item 可以直接对 $D_i = (A_i, B_i, C_i)$ 计数。发现大多数长度为 $3$ 的排列前后之间可以贡献的逆序对数量为 $1$，相同的排列之间贡献为 $0$，有一些排列前后之间可以贡献 $2$ 个逆序对；
@@ -119,28 +364,313 @@
     \end{itemize}
     \end{block}
 \end{frame}
-\begin{frame}{开始优化之前}
-    \begin{block}{Solution}
+
+\begin{frame}{状态数的自简化}
+    \begin{block}{Solution (续)}
     \begin{itemize}
         \item 转移是容易的，然后考虑把第一组插入到第二组里面。最终答案为：
-
         $$
         \sum_{a = 0}^x \sum_{b = 0}^y \sum_{c = 0}^z \sum_{i = -\frac{n(n-1)}{2}}^{\frac{n(n-1)}{2}} \binom{n}{a + b + c} f_{a, b, c, i} f_{x - a, y - b, z - c, k - i}
         $$
-
         \item 时空复杂度为 $O(n^5)$，真能跑满吗？
-
-            分析一下，$c_1 + c_2 + c_3 \le n$，取值方案只有 $\binom{n + 3}{3}$ 种。再加上 $-\binom{c_1 + c_2 + c_3}{2} \le i \le \binom{c_1 + c_2 + c_3}{2}$。实测状态数大概只有 $10^7$ 左右。
+        \item 分析一下，$c_1 + c_2 + c_3 \le n$，取值方案只有 $\binom{n + 3}{3}$ 种。再加上 $-\binom{c_1 + c_2 + c_3}{2} \le i \le \binom{c_1 + c_2 + c_3}{2}$。实测状态数大概只有 $10^7$ 左右。
     \end{itemize}
     \end{block}
 \end{frame}
-\begin{frame}{状态数的自简化}
+
+\begin{frame}{决策单调性：定义}
+    \begin{block}{决策单调性}
+    在动态规划时，若转移时对于一个状态是单点对单点转移，且令 $k_i$ 表示状态 $i$ 的最优决策点，有 $\forall i< j$ 有 $k_i\le k_j$，则称这个动态规划的过程具有\textbf{决策单调性}。
+    \end{block}
     
+    \begin{block}{判定方式}
+    \begin{enumerate}
+        \item \textbf{打表}：使用朴素 DP 求出每个点的最优决策点，对于每一个点的最优决策点进行比较
+        \item \textbf{四边形不等式法则}与\textbf{区间包含单调性}
+    \end{enumerate}
+    \end{block}
 \end{frame}
-% \subsection{决策单调性优化}
-% \subsection{斜率优化}
-% \subsection{Slope trick}
-% \subsection{WQS 二分}
+
+\begin{frame}{决策单调性：四边形不等式}
+    \begin{block}{四边形不等式}
+    对于函数 $w(i,j)$，$\forall p_1\le p_2\le p_3\le p_4$，有如下式子：
+    $$w(p_1,p_3)+w(p_2,p_4)\le w(p_1,p_4)+w(p_2,p_3)$$
+    则我们称函数 $w(i,j)$ 满足\textbf{四边形不等式}。\\
+    记忆为：\textbf{交叉小于等于包含}。
+    \end{block}
+    
+    \begin{block}{区间包含单调性}
+    如果对于函数 $w(i,j)$，如果 $\forall a\le b\le c\le d$，有 $w(b,c)\le w(a,d)$，则称函数 $w(i,j)$ 满足\textbf{区间包含单调性}。
+    \end{block}
+\end{frame}
+
+\begin{frame}{决策单调性：1D/1D 动态规划}
+    \begin{block}{标准形式}
+    $$f[i]=\min\{f[j]+w(j,i)\}(0\le j< i)$$
+    \end{block}
+    
+    \begin{alertblock}{定理}
+    如果这个式子中 $w(j,i)$ 满足\textbf{四边形不等式}，则整个动态规划的过程具有\textbf{决策单调性}。
+    \end{alertblock}
+    
+    \begin{block}{优化效果}
+    使用决策单调性可以将复杂度从 $O(n^2)$ 优化至 $O(n\log n)$。
+    \end{block}
+\end{frame}
+
+\begin{frame}{决策单调性：优化方法}
+    \begin{block}{二分单调队列}
+    \begin{itemize}
+        \item 每一个状态都有一个\textbf{决策表}，存储当前的最优决策
+        \item 当状态 $i$ 转移完成后，找到一个最小的位置，使这个位置由 $i$ 转移比目前决策表的转移\textbf{更优}
+        \item 根据决策单调性，该位置之后的位置，其决策表都更新为 $i$
+        \item 这些段形容成三元组 $s(x,l,r)$，表示 $[l,r]$ 的状态最优转移点为 $x$
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{分治优化}
+    如果状态间转移无依赖，可以使用分治优化，时间复杂度仍为 $O(n\log n)$。
+    \end{block}
+\end{frame}
+
+\begin{frame}{斜率优化}
+    \begin{block}{适用条件}
+    转移形式类似：
+    $$f[i] = \min_{j<i}\{f[j] + a[i]\cdot b[j] + c[i]\}$$
+    可以理解为在平面上维护一个凸包，每次查询最优决策点。
+    \end{block}
+    
+    \begin{block}{基本思路}
+    \begin{enumerate}
+        \item 将转移方程改写成斜率的形式
+        \item 维护一个下凸壳或上凸壳
+        \item 利用单调性优化查询
+    \end{enumerate}
+    \end{block}
+    
+    复杂度为 $O(n)$ 或 $O(n\log n)$，取决于斜率和决策点是否单调
+\end{frame}
+
+\begin{frame}{WQS 二分}
+    \begin{block}{适用问题}
+    \begin{itemize}
+        \item 有一个限制维度很难处理（如恰好选 $k$ 个）
+        \item 答案关于这一维具有凸性
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{基本思路}
+    \begin{enumerate}
+        \item 去掉"恰好选 $k$ 个"的限制
+        \item 二分一个代价 $c$，每选一个就额外付出代价 $c$
+        \item 找到使得恰好选 $k$ 个的代价 $c$
+        \item 原问题的答案就是 $f[n] - k\cdot c$
+    \end{enumerate}
+    \end{block}
+    
+    \begin{alertblock}{关键}
+    需要证明答案关于选择数量的凸性！
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{状态优化：换元与合并}
+    \begin{block}{下标换元}
+    令 $g_i$ 表示 $f_{t(i)}$ 然后对 $g$ 做 DP：
+    \begin{itemize}
+        \item 能方便一些转移优化
+        \item 常能暴露出一些不必记或不必分开记的状态
+        \item 触发状态数的自简化或状态合并
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{状态合并}
+    在初步设计 DP 时，可能会设计一些含义较好理解的，但实际上有些信息没有必要区分的 DP 状态，可以在进一步分析时合并。
+    \end{block}
+\end{frame}
+
+\begin{frame}{最优化专用优化}
+    \begin{block}{最优性去状态}
+    利用一些性质去除不必要记的状态：
+    \begin{itemize}
+        \item 这个状态不可能生成最优解
+        \item 或有多条路线可以生成最优解，去掉其中的部分
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{最优性换维}
+    交换一维状态和所记值：
+    \begin{itemize}
+        \item 将求"某种情况下最优的……值"
+        \item 转为求"要达到最优值为……，某维的值至少/多要达到多少"
+        \item \textbf{注意}：要刻意证明最优子结构！
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{数据结构优化}
+    \begin{block}{常见的数据结构优化}
+    \begin{enumerate}
+        \item \textbf{线段树}：维护区间最值、区间和等
+        \item \textbf{单调队列/单调栈}：维护滑动窗口最值
+        \item \textbf{平衡树}：动态维护有序序列
+        \item \textbf{树状数组}：维护前缀和、区间和
+    \end{enumerate}
+    \end{block}
+    
+    \begin{alertblock}{注意}
+    数据结构优化往往是在其他优化之后的最后一步，不要一开始就想着用数据结构硬上。
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{DP 优化：一般流程}
+    \begin{block}{优化流程}
+    \begin{enumerate}
+        \item \textbf{分析模型}：找全性质，确定 DP 对象
+        \item \textbf{设计状态}：尽可能少的状态维度
+        \item \textbf{写出方程}：清晰的转移方程
+        \item \textbf{观察方程}：
+            \begin{itemize}
+                \item 组合意义
+                \item 转移方程的特征（四边形不等式、凸性等）
+                \item 转移图的特点
+            \end{itemize}
+        \item \textbf{选择优化}：
+            \begin{itemize}
+                \item 状态优化：换元、合并、去除
+                \item 转移优化：决策单调性、斜率优化、WQS 二分
+                \item 数据结构：线段树、单调队列等
+            \end{itemize}
+    \end{enumerate}
+    \end{block}
+\end{frame}
+
+\section{通用的解题方法}
+
+\begin{frame}{通用解题方法：四个步骤}
+    思考一道 DP 题的过程可以归纳为如下四步：
+    
+    \begin{enumerate}
+        \item \textbf{分析模型性质}，简化模型，揭开模型"真面目"
+        \item \textbf{处理模型}，找到可以用 DP 解决的对象
+        \item \textbf{明确转化后的问题}，设计 DP 方式
+        \item \textbf{优化 DP}
+    \end{enumerate}
+    
+    \begin{alertblock}{注意}
+    \begin{itemize}
+        \item 相邻两步之间没有明确的分界
+        \item 思考过程并不一定是依次做这四个步骤
+        \item 可能在第四步时会返回到前三步，反复寻找更优的 DP 方式
+    \end{itemize}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{第一步：分析性质}
+    \begin{block}{主要思考内容}
+    \begin{enumerate}
+        \item 寻找可以直接从题目条件导出，或与题目条件等价的条件
+        \item 模拟（包括打表）小样例、特殊样例找到简化的方向和规律
+        \item 想象某个最终解，利用（广义的）调整法排除可能性
+        \item 联想一些与题目条件相关或类似的模型，尝试套用
+    \end{enumerate}
+    \end{block}
+    
+    \begin{block}{目标}
+    减少总体（静态）的模型可能性，基于题目条件作有充分性的推导。
+    \end{block}
+\end{frame}
+
+\begin{frame}{第二步：处理模型}
+    通过改变（增删、合并、拆分、等价转述）\textbf{要素}：
+    \begin{itemize}
+        \item 调整这些要素的主次关系
+        \item 调整自变量与因变量关系
+        \item 调整组织顺序
+        \item 调整枚举顺序
+    \end{itemize}
+    得到一个新的看待模型的方式，在新的模型描述下，所有解应与原模型的所有解形成一个映射（双射）。
+    从信息量（不确定性）的角度考虑转化是否有用。
+\end{frame}
+
+\begin{frame}{第三步：设计 DP - 基本原则}
+    \begin{block}{三个原则}
+    \begin{enumerate}
+        \item 每个希望被考虑的解均被恰当地计入，不希望被考虑的解均不被计入
+        \item 状态数足够少
+        \item 状态是封闭的（重叠子问题）
+    \end{enumerate}
+    \end{block}
+    
+    \begin{block}{三个意识}
+    \begin{enumerate}
+        \item 优先考虑优化暴力 DP 和推广特殊情况 DP
+        \item 优先考虑组合意义，优化时结合组合意义
+        \item 优先寻找突破口（贪心性质、结构简单特征、信息量小或限制多的子结构、无关性或独立性）
+    \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{第三步：设计 DP - 设计方法}
+    \begin{block}{方法一：设计生成过程，再确定状态}
+    \begin{itemize}
+        \item 首先确定一个解大致的生成顺序
+        \item 然后确定生成过程中的部分结构或时刻
+        \item 用状态去表出这部分，用转移表出状态之间的部分
+    \end{itemize}
+    核心和难点：生成顺序的选取和子结构的选取
+    \end{block}
+    
+    \begin{block}{方法二：关注单步决策，推理出状态}
+    \begin{itemize}
+        \item 先通过观察生成过程中某个静态的片刻或局部
+        \item 发现无关性，作为定状态的突破口
+        \item 思考该部分与剩余待决策部分的关系
+        \item 反复进行上述操作，不断扩充状态使其关于转移封闭
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{第三步：设计 DP - 单步 vs 断点}
+    \begin{block}{单步转移}
+    \begin{itemize}
+        \item 每次只决策一个"最小单元"
+        \item 易写转移方程，不容易漏性质
+    \end{itemize}
+    \end{block}
+    
+    \begin{block}{断点转移}
+    \begin{itemize}
+        \item 一次性决策连续的待定部分
+        \item 利用数学方法或其他性质
+        \item 往往用于缩状态，但转移需要优化
+    \end{itemize}
+    \end{block}
+    
+    \begin{alertblock}{推荐}
+    在数据范围允许的情况下，一般建议单步转移。
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{第四步：优化 DP}
+    \begin{alertblock}{重要提醒}
+    最好的优化 DP 的方法，是做好前三步，或在较劣的 DP 基础上重做前三步。
+    \end{alertblock}
+    
+    \begin{block}{观察的角度}
+    \begin{enumerate}
+        \item DP 的组合意义
+        \item DP 的转移方程
+        \item DP 的转移图
+    \end{enumerate}
+    \end{block}
+    
+    \begin{block}{优化分类}
+    \begin{itemize}
+        \item 对状态的优化：换元、合并、去除
+        \item 对转移的优化：决策单调性、斜率优化、WQS 二分、数据结构
+    \end{itemize}
+    \end{block}
+\end{frame}
 
 \section{致谢}
 \begin{frame}{致谢}
