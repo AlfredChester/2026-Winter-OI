@@ -174,7 +174,7 @@
 \begin{frame}{状压 DP：优化技巧}
     状压 DP 的难点主要在两块：刻画生成过程和优化。
     
-    \begin{block}{meet-in-the-middle 技巧}
+    \begin{block}{meet-in-the-middle}
     如果转移时要考虑两个数之间的某个位运算，可以两者分别枚举一半。
     \end{block}
     
@@ -185,41 +185,6 @@
         \item $g_i=\sum_{j\sqcup k=i,h(j)=h(i)}f_jg_k$：全集的无序划分，$O(n^22^n)$
         \item $g_i=T_i\left(\sum_{j\subset i}g_j\right)$：按最高位 01 分治，$O(n2^n)$
     \end{enumerate}
-    \end{block}
-\end{frame}
-
-\begin{frame}{概率与期望 DP：状态定义}
-    \begin{alertblock}{经典困惑}
-    为什么设计 DP 状态必须是"当前状态到达终止状态"的概率或期望，而不能是"从初始状态到当前状态"？
-    \end{alertblock}
-    
-    \begin{block}{根本原因}
-    \begin{itemize}
-        \item 没有澄清 DP 的对象
-        \item 普通计数 DP 可以设计"从初始状态到当前状态"
-        \item 但期望 DP 会有歧义：条件期望 vs 期望和
-        \item 转移是要乘概率的，导致转移意义与状态意义不符
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{推荐方案}
-    设计成"当前状态到达终止状态"可以避免这些问题，从而比较简洁地直接转移。
-    \end{block}
-\end{frame}
-
-\begin{frame}{概率与期望 DP：技巧}
-    \begin{block}{计数转概率/期望}
-    某些计数问题可以通过转成求概率或期望来简化转移公式：
-    \begin{itemize}
-        \item 直接 DP 需要记方案数和总和
-        \item 化成期望 DP，方案数直接变成恒为 $1$ 的概率
-        \item 可以忽略结构中对状态没有影响的元素
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{期望的拆分}
-    $$E[\text{总数}]=E[\text{轮数}]\cdot E[\text{单轮数}]$$
-    当满足独立性时，可以分别计算后相乘。
     \end{block}
 \end{frame}
 
@@ -278,41 +243,6 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{区间 DP}
-    这部分不是指区间 DP，而是某些给定若干区间然后选的问题。
-    
-    \begin{block}{初步处理方式}
-    \begin{enumerate}
-        \item 按某个端点排序
-        \item 处理掉一些区间使得左右端点同时递增
-        \item 或只有包含和相离情况
-    \end{enumerate}
-    \end{block}
-    
-    \begin{alertblock}{特点}
-    这类问题较罕见，一个合理的状态能给出极好的无关性。
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}{数学方法在 DP 中的应用}
-    \begin{block}{何时推式子 vs 何时 DP}
-    \begin{itemize}
-        \item 推式子往往需要更透彻的对模型的分析
-        \item 可以利用各种数学工具得到不依赖于组合意义的、更本质的解法
-        \item 但有时 DP 的复杂度反而更优
-        \item 两者的分界并不明确
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{可以机械化的优化}
-    \begin{enumerate}
-        \item 矩乘相关：行列式、特征多项式、对角化等
-        \item 常系数线性递推
-        \item 整式递推
-    \end{enumerate}
-    \end{block}
-\end{frame}
-
 % \section{DP 状态设计手法}
 % \subsection{延后决策}
 % \subsection{减少状态杂说}
@@ -333,9 +263,7 @@
         \item 另外，如果解是一个过程，有时倒推一些必要的东西会比较容易。
         \item 联想一些与题目条件相关或类似的模型，尝试套用。
     \end{itemize}
-    \begin{alertblock}{记住}
     毕竟，最好的优化是不用其他优化。
-    \end{alertblock}
 \end{frame}
 
 \begin{frame}{开始优化之前}
@@ -355,27 +283,24 @@
     尝试写出所有你认识到的性质。你能做到的最优复杂度是什么？
 \end{frame}
 
-\begin{frame}{状态数的自简化}
-    有时，真正可能 DP 到的状态远少于 DP 状态每一维最大值之积。可能使用记搜简化代码。
-    \begin{block}{Solution}
+\begin{frame}{开始优化之前}
     \begin{itemize}
         \item 可以直接对 $D_i = (A_i, B_i, C_i)$ 计数。发现大多数长度为 $3$ 的排列前后之间可以贡献的逆序对数量为 $1$，相同的排列之间贡献为 $0$，有一些排列前后之间可以贡献 $2$ 个逆序对；
         \item 可设 $f_{c_1, c_2, c_3, i}$ 表示现在分别有 $c_1, c_2, c_3$ 个组内的第一个为 $1$ 排列，第一个为 $2$ 排列，第一个为 $3$ 排列，当前逆序对贡献为 $i$ 的方案数。只有组内可能贡献 $2$ 或 $0$ 个逆序对。考虑设定基准贡献为一个逆序对，那么特殊的对之间的贡献就变成 $+1$ 或 $-1$ 了，而组间没有贡献，两组内的结构是相同的。
-    \end{itemize}
-    \end{block}
-\end{frame}
-
-\begin{frame}{状态数的自简化}
-    \begin{block}{Solution (续)}
-    \begin{itemize}
         \item 转移是容易的，然后考虑把第一组插入到第二组里面。最终答案为：
         $$
         \sum_{a = 0}^x \sum_{b = 0}^y \sum_{c = 0}^z \sum_{i = -\frac{n(n-1)}{2}}^{\frac{n(n-1)}{2}} \binom{n}{a + b + c} f_{a, b, c, i} f_{x - a, y - b, z - c, k - i}
         $$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{开始优化之前}
+    \begin{itemize}
         \item 时空复杂度为 $O(n^5)$，真能跑满吗？
         \item 分析一下，$c_1 + c_2 + c_3 \le n$，取值方案只有 $\binom{n + 3}{3}$ 种。再加上 $-\binom{c_1 + c_2 + c_3}{2} \le i \le \binom{c_1 + c_2 + c_3}{2}$。实测状态数大概只有 $10^7$ 左右。
+        \item 有时，真正可能 DP 到的状态远少于 DP 状态每一维最大值之积。可能使用记搜简化代码。
+        \item Fun fact: 这个题 maze.size() 的记忆化搜索实现跑了 $1695$ms，而我校另一支队伍 Be over the moon 李神的精细实现跑了 $5$ms。
     \end{itemize}
-    \end{block}
 \end{frame}
 
 \begin{frame}{决策单调性：定义}
@@ -544,141 +469,14 @@
     \end{block}
 \end{frame}
 
-\section{通用的解题方法}
-
-\begin{frame}{通用解题方法：四个步骤}
-    思考一道 DP 题的过程可以归纳为如下四步：
-    
-    \begin{enumerate}
-        \item \textbf{分析模型性质}，简化模型，揭开模型"真面目"
-        \item \textbf{处理模型}，找到可以用 DP 解决的对象
-        \item \textbf{明确转化后的问题}，设计 DP 方式
-        \item \textbf{优化 DP}
-    \end{enumerate}
-    
-    \begin{alertblock}{注意}
-    \begin{itemize}
-        \item 相邻两步之间没有明确的分界
-        \item 思考过程并不一定是依次做这四个步骤
-        \item 可能在第四步时会返回到前三步，反复寻找更优的 DP 方式
-    \end{itemize}
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}{第一步：分析性质}
-    \begin{block}{主要思考内容}
-    \begin{enumerate}
-        \item 寻找可以直接从题目条件导出，或与题目条件等价的条件
-        \item 模拟（包括打表）小样例、特殊样例找到简化的方向和规律
-        \item 想象某个最终解，利用（广义的）调整法排除可能性
-        \item 联想一些与题目条件相关或类似的模型，尝试套用
-    \end{enumerate}
-    \end{block}
-    
-    \begin{block}{目标}
-    减少总体（静态）的模型可能性，基于题目条件作有充分性的推导。
-    \end{block}
-\end{frame}
-
-\begin{frame}{第二步：处理模型}
-    通过改变（增删、合并、拆分、等价转述）\textbf{要素}：
-    \begin{itemize}
-        \item 调整这些要素的主次关系
-        \item 调整自变量与因变量关系
-        \item 调整组织顺序
-        \item 调整枚举顺序
-    \end{itemize}
-    得到一个新的看待模型的方式，在新的模型描述下，所有解应与原模型的所有解形成一个映射（双射）。
-    从信息量（不确定性）的角度考虑转化是否有用。
-\end{frame}
-
-\begin{frame}{第三步：设计 DP - 基本原则}
-    \begin{block}{三个原则}
-    \begin{enumerate}
-        \item 每个希望被考虑的解均被恰当地计入，不希望被考虑的解均不被计入
-        \item 状态数足够少
-        \item 状态是封闭的（重叠子问题）
-    \end{enumerate}
-    \end{block}
-    
-    \begin{block}{三个意识}
-    \begin{enumerate}
-        \item 优先考虑优化暴力 DP 和推广特殊情况 DP
-        \item 优先考虑组合意义，优化时结合组合意义
-        \item 优先寻找突破口（贪心性质、结构简单特征、信息量小或限制多的子结构、无关性或独立性）
-    \end{enumerate}
-    \end{block}
-\end{frame}
-
-\begin{frame}{第三步：设计 DP - 设计方法}
-    \begin{block}{方法一：设计生成过程，再确定状态}
-    \begin{itemize}
-        \item 首先确定一个解大致的生成顺序
-        \item 然后确定生成过程中的部分结构或时刻
-        \item 用状态去表出这部分，用转移表出状态之间的部分
-    \end{itemize}
-    核心和难点：生成顺序的选取和子结构的选取
-    \end{block}
-    
-    \begin{block}{方法二：关注单步决策，推理出状态}
-    \begin{itemize}
-        \item 先通过观察生成过程中某个静态的片刻或局部
-        \item 发现无关性，作为定状态的突破口
-        \item 思考该部分与剩余待决策部分的关系
-        \item 反复进行上述操作，不断扩充状态使其关于转移封闭
-    \end{itemize}
-    \end{block}
-\end{frame}
-
-\begin{frame}{第三步：设计 DP - 单步 vs 断点}
-    \begin{block}{单步转移}
-    \begin{itemize}
-        \item 每次只决策一个"最小单元"
-        \item 易写转移方程，不容易漏性质
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{断点转移}
-    \begin{itemize}
-        \item 一次性决策连续的待定部分
-        \item 利用数学方法或其他性质
-        \item 往往用于缩状态，但转移需要优化
-    \end{itemize}
-    \end{block}
-    
-    \begin{alertblock}{推荐}
-    在数据范围允许的情况下，一般建议单步转移。
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}{第四步：优化 DP}
-    \begin{alertblock}{重要提醒}
-    最好的优化 DP 的方法，是做好前三步，或在较劣的 DP 基础上重做前三步。
-    \end{alertblock}
-    
-    \begin{block}{观察的角度}
-    \begin{enumerate}
-        \item DP 的组合意义
-        \item DP 的转移方程
-        \item DP 的转移图
-    \end{enumerate}
-    \end{block}
-    
-    \begin{block}{优化分类}
-    \begin{itemize}
-        \item 对状态的优化：换元、合并、去除
-        \item 对转移的优化：决策单调性、斜率优化、WQS 二分、数据结构
-    \end{itemize}
-    \end{block}
-\end{frame}
-
 \section{致谢}
 \begin{frame}{致谢}
     \begin{itemize}
         \item 感谢曹杨二中 OI 教练组提供的本次交流机会；
         \item 感谢同学们三个小时的认真听讲；
         \item 感谢 YeahPotato 的优秀文章《dp 题方法总汇》提供的灵感。
-        \item 感谢我的同学兼 XCPC 队（maze.size()）友 JoeyJ 提供的优质例题。
+        \item 感谢我的同学兼 XCPC 队友 JoeyJ 提供的优质例题。
+        \item 希望大家都能成为 DP 高手。/bx /bx /bx
     \end{itemize}
 \end{frame}
 
