@@ -82,7 +82,39 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{括号序列：类括号序列}
+\begin{frame}{括号序列}
+    \begin{block}{CF1781F Bracket Insertion}
+        你有一个空字符串 $s$，然后重复以下操作 $n$ 次：
+        
+        \begin{itemize}
+            \item 在 $s$ 中的某个位置等概率地插入新的括号。如果当前序列长度为 $k$，那么有 $k+1$ 个插入位置：第一个括号之前、第一个和第二个括号之间、$\ldots$、第 $k$ 个括号之后。
+            \item 以概率 $p$ 选择字符串 "()"，或者以概率 $1-p$ 选择字符串 ")("，并将其插入到选定的位置。
+        \end{itemize}
+
+        请计算最终得到的括号序列是合法括号序列的概率。
+    \end{block}
+    这题有很多解法。用刚刚提到的哪些刻画方法能让你用尽量少的信息判定合法性？如何刻画时间先后？
+\end{frame}
+
+\begin{frame}{括号序列}
+    称第 $i$ 轮加入的为第 $i$ 组括号。先分析一下题目条件的静态表述：把每个括号加入的时间写成序列，则不能出现 $[j,i,i,j],[i,j,i,j],[j,i,j,i]$（其中 $i<j$）的子序列。
+    \begin{itemize}
+        \item 解法 1：考虑类似方法 3，但是在时间轴上。
+        \item 考虑第一组括号，它们将序列切分成三部分，同一组括号在同一部分。
+        \item 这样只需在记一维“当前段前面多的 ( 数”即可。由于是三部分，故是 $O(n^4)$。
+        \item 先对其中两个卷积即可做到 $O(n^3)$。
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{括号序列}
+    \begin{itemize}
+        \item 解法 2：尝试方式 3，问题在于这对匹配的括号可能不是同一组。
+        \item 那就改成找与开头括号同一组的括号，它将序列切成两部分，同一组括号在同一部分，第一部分都后于开头括号加入。
+        \item dp 状态与第一种相同，直接三次方。
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{括号序列}
     \begin{block}{01 序列技巧}
     如果有一些 0 和一些 1，每个都有权值，要选一个子集 01 数量相同，最优化权值相关某个东西：
     \begin{itemize}
@@ -91,14 +123,19 @@
         \item 这一维可以只开到 $\Theta(\sqrt{n})$
     \end{itemize}
     \end{block}
+    例题是 P9047 [PA 2021] Poborcy podatkowi，这节课不展开讲。
+
+    顺便提一嘴，随机序列的期望前缀最大值个数是 $O(\log n)$ 的。也许可以在二分的时候消掉一只 $\log$。
+
+    更多这类技巧见《什么是根号？什么是 $\log$？》—— \url{https://www.cnblogs.com/Charlie-Vinnie/p/16491878.html}
 \end{frame}
 
-\begin{frame}{排列：基本生成顺序}
-    这一节侧重于排列未知的情况。参照 YeahPotato 的课件，最基本的排列生成顺序如下：
+\begin{frame}{排列}
+    最基本的排列生成顺序如下：
 
     \begin{table}
         \centering
-        \small % 适当缩小字号以适应幻灯片
+        \small
         \begin{tabularx}{\textwidth}{|c|X|X|}
         \hline
             & \textbf{预定（绝对）} & \textbf{插入（相对）} \\ \hline
@@ -109,8 +146,8 @@
     排列的关键是找到一个生成顺序，使得已生成部分的数不需要逐个记录，而只需抽象成少量的几个量。
 \end{frame}
 
-\begin{frame}{排列：典型应用}
-    \begin{block}{应用类型}
+\begin{frame}{排列}
+    \begin{block}{经典应用}
     \begin{enumerate}
         \item 只对一个单调子序列 DP，剩余部分直接用组合数确定
             \begin{itemize}
@@ -132,24 +169,57 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{背包：基础技巧}
-    \begin{block}{基础背包技巧}
-    \begin{enumerate}
-        \item 多重背包的二进制拆分和同余转移
-        \item 换维：价值较小时可以定义状态为得到 $i$ 的价值至少要多少重量
-        \item 物品大小和有限制时只有根号种物品
-        \item 无序整数拆分相关：
-            \begin{itemize}
-                \item "全体 +1 \& 新开一个"的转移方式
-                \item 按下标 DP 总状态数为 $n^2\ln n$
-            \end{itemize}
-        \item 从 GF（生成函数）角度考虑
-        \item 同余最短路
-    \end{enumerate}
+\begin{frame}{排列}
+    \begin{block}{CF1806D DSU Master}
+        给定一个整数 $n$ 和一个长度为 $n-1$ 的 $01$ 数组 $a$。
+
+        我们定义一个长度为 $m-1$（$m \leq n$）的排列 $p$ 的值如下：
+
+        令 $G$ 为一个有 $m$ 个顶点的图，顶点编号为 $1$ 到 $m$，初始时没有任何边。对于每个 $i$ 从 $1$ 到 $m-1$，执行以下操作：
+
+        \begin{itemize}
+            \item 设 $u$ 和 $v$ 分别为包含顶点 $p_i$ 和 $p_i+1$ 的弱连通分量中仅有入边的（唯一）顶点；
+            \item 如果 $a_{p_i}=0$，则在图 $G$ 中添加一条从顶点 $v$ 指向 $u$ 的有向边；否则（即 $a_{p_i}=1$），添加一条从 $u$ 指向 $v$ 的有向边。
+        \end{itemize}
+
+        注意，每一步操作后，可以证明 $G$ 的每个弱连通分量都恰好有一个仅有入边的顶点。排列 $p$ 的值定义为 $G$ 中顶点 $1$ 的入边数。
+
+        对于每个 $k$ 从 $1$ 到 $n-1$，求所有长度为 $k$ 的排列的值之和。
     \end{block}
 \end{frame}
 
-\begin{frame}{背包：高级技巧（仅用于最优化）}
+\begin{frame}{排列}
+    \begin{itemize}
+        \item 解法 1：对答案有贡献的是所有 $p_i=\operatorname{mex}_{j<i}\{p_j\}$ 的 $i$，对它们 dp，其余部分可以用组合数插入。
+        \item $f_i$ 表示到 $i$，$1\sim i-1$ 都在 $i$ 之前，且目前根为 $1$ 的方案数。
+        \item $f_i=[a_i=0]\sum_{j<i}(i-2)^{\underline{i-j-1}}f_j$，然后统计一下即可。这属于按值、插入、断点转移。
+    \end{itemize}
+
+    \begin{itemize}
+        \item 解法 2：尝试按值、插入、单步转移。如果 $i$ 不插到末尾则无影响，否则当且仅当 $1\sim i-1$ 操作结束后根仍为 $1$ 且 $a_i=0$ 时有贡献。
+        \item 从另一个角度看，这个解法的处理是把每个点的贡献拆开，将原所求转化为容易转移的“前 $i$ 个点操作后根仍为 $1$ 的方案数”，属于拆分要素。
+    \end{itemize}
+
+    排列的延后决策被放到了之后的 DP 优化（？）说实话我也不知道放哪，毕竟延后决策刻画的不一定是排列。
+\end{frame}
+
+\begin{frame}{背包}
+    基础的背包技巧有以下几个：
+
+    \begin{itemize}
+        \item 多重背包的二进制拆分和同余转移
+        \item 换维：价值较小时可以定义状态为得到 $i$ 的价值至少要多少重量
+        \item 物品大小和有限制时只有根号种物品
+        \item 无序整数拆分相关：全体 +1 \& 新开一个"的转移方式
+        \item 从 GF（生成函数）角度考虑
+        \item 同余最短路
+        \item 判断可行性可以使用 std::bitset
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{背包}
+    另外有几个比较牛的性质，但是只能用于最优化问题。
+
     \begin{block}{完全背包的倍增方法}
     当容量 $T$ 很大，最大重量 $W$ 较小时：
     \begin{itemize}
@@ -160,7 +230,7 @@
     \end{block}
 \end{frame}
     
-\begin{frame}{背包：高级技巧（仅用于最优化）}
+\begin{frame}{背包}
     \begin{block}{背包的贪心性质}
     按性价比贪心选直到第一次遇到无法选的物品就停止，设选出的物品集合为 $G$，最优解为 $O$：
     \begin{itemize}
@@ -169,69 +239,50 @@
         \item 复杂度：$O(nT)\rightarrow O(nW^2)$
     \end{itemize}
     \end{block}
+    证明：考虑 $G$ 加删元素（不重复加删一个元素）逐渐变成 $O$ 的过程，容易维持重量和 $\in[T-W,T+W)$。如果 $\lvert G\oplus O\rvert>2W$，那么由鸽巢原理，一定存在两个中间状态重量和相等。由于 $G$ 选的是性价比最高的一些，故把这两个重量和相等的中间的加删部分去掉，一定不劣。
 \end{frame}
 
-\begin{frame}{状压 DP：优化技巧}
-    状压 DP 的难点主要在两块：刻画生成过程和优化。
-    
-    \begin{block}{meet-in-the-middle}
-    如果转移时要考虑两个数之间的某个位运算，可以两者分别枚举一半。
-    \end{block}
-    
-    \begin{block}{几个经典的转移形式（$\sqcup$ 表示不交并）}
-    \begin{enumerate}
-        \item $g_i=\sum_{j\sqcup k=i}f_jg_k$：半在线子集卷积，$O(n^22^n)$
-        \item $g_i=T_i\left(\sum_{j\sqcup k=i}f_jg_k\right)$：按 $|i|$ 从小到大处理，$O(n^22^n)$
-        \item $g_i=\sum_{j\sqcup k=i,h(j)=h(i)}f_jg_k$：全集的无序划分，$O(n^22^n)$
-        \item $g_i=T_i\left(\sum_{j\subset i}g_j\right)$：按最高位 01 分治，$O(n2^n)$
-    \end{enumerate}
-    \end{block}
-\end{frame}
-
-\begin{frame}{数位 DP：基本思路与技巧}  
-    \begin{block}{全体 $+x$ 的最优化问题}
-    考虑逐位 DP，记录进位的分界线：
-    \begin{itemize}
-        \item 如果当前确定的是低 $i$ 位
-        \item 一定是所有数按低 $i$ 位排序后的一个后缀进位
-        \item 转移时先基数排序，再枚举进位分界，得到下一位每种数占的区间
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{重要模型}
-    考虑函数 $f(S)=\{\lfloor x/2\rfloor,\lceil x/2\rceil\mid x\in S\}$：
-    \begin{itemize}
-        \item $f^{(i)}(\{x\})$ 的大小至多为 $2$
-        \item $f^{(i)}(\{x\})=\{\lfloor x/2^i\rfloor,\lceil x/2^i\rceil\}$
-    \end{itemize}
-    \end{block}
-\end{frame}
-
-\begin{frame}{树形 DP：设计思路与技巧}
-    \begin{block}{基本设计思路}
-    \begin{itemize}
-        \item 考虑加一条边和合并两个儿子
-        \item 把状态和转移定出来
-    \end{itemize}
-    \end{block}
-    
+\begin{frame}{树形 DP}
     \begin{block}{比较初级的技巧}
-    \begin{enumerate}
+    \begin{itemize}
         \item 换根 DP
         \item 多儿子选择时的反悔技巧
-        \item 树上背包
-            \begin{itemize}
-                \item 如果强制大小与 $k$ 取 $\min$，时间是 $O(nk)$ 的
-            \end{itemize}
-    \end{enumerate}
+        \item 树上背包：如果强制大小与 $k$ 取 $\min$，时间是 $O(nk)$ 的
+    \end{itemize}
     \end{block}
     
-    \begin{block}{另一种 DP 方式}
-    在 DFS 序上跳
+    \begin{block}{P7600 [APIO2021] 封闭道路}
+        给定一棵 $N$ 个点、边有权的树。对于每个 $k \in [0, N-1]$，求出：删掉部分边，使得每个点的度数均不超过 $k$ 的最小代价。
     \end{block}
+
+    这题用了反悔技巧，课上不展开讲。
+
+    树上 DP 还可以按照 DFS 序 DP，主要用来解决父子依赖相关的问题。
 \end{frame}
 
-\begin{frame}{树形 DP：树上背包复杂度证明}
+\begin{frame}{树形 DP}
+    \begin{block}{无来源题}
+        一棵 $n$ 个结点的有根树，每个结点 $i$ 有 $s_i$ 个价格为 $c_i$，价值为 $v_i$ 的物品。除了根结点，要购买某个结点的物品必须在它的父节点购买至少一件。求总费用为 $x$ 时的最大化价值。$x, v_i \le m$
+    \end{block}
+
+    一个朴素的 DP 是 $f(i,j)$ 表示在结点 $i$ 的子树中购买费用不超过 $j$ 的物品的最大价值。转移时 $O(m^2)$ 进行背包合并，总复杂度 $O(m^2)$。
+
+    如何用 DFS 序刻画父子依赖？应该是什么序遍历？
+\end{frame}
+
+\begin{frame}{树形 DP}
+    \begin{block}{无来源题}
+        一棵 $n$ 个结点的有根树，每个结点 $i$ 有 $s_i$ 个价格为 $c_i$，价值为 $v_i$ 的物品。除了根结点，要购买某个结点的物品必须在它的父节点购买至少一件。求总费用为 $x$ 时的最大化价值。$x, v_i \le m$
+    \end{block}
+
+    \begin{itemize}
+        \item 我们以后序遍历（先按序遍历子节点，再遍历根结点）的方式求出结点的 DFS 序。则对于结点u，设其 DFS 序为 $D_u$​，记它的子树大小为 $S_u$​。同时我们记 DFS 序为 $i$ 的结点为 $V(i)$。
+        \item 通俗地说，我们设 $f(i,j)$ 表示在 DFS 序小于等于 $i$ 的结点构成的连通块中选物品，总费用不超过 $j$ 时的最大价值。转移的时候枚举 $V(i)$ 上选不选物品，从 $f(i−1),f(i−SV(i))$ 转移。
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{树形 DP}
+    树上背包如果强制大小与 $k$ 取 $\min$ 的话时间是 $O(nk)$ 的，证明见下。
     \begin{block}{$O(nk)$ 复杂度证明}
     采用树分块的思路：
     \begin{itemize}
@@ -241,14 +292,11 @@
         \item 大点之间：两个大点合并为 $O(k^2)$，合并共发生 $O(n/k)$ 次，也是 $O(nk)$
     \end{itemize}
     \end{block}
+
+    模板：P4516 [JSOI2018] 潜入行动
 \end{frame}
 
-% \section{DP 状态设计手法}
-% \subsection{延后决策}
-% \subsection{减少状态杂说}
-
 \section{常见的 DP 优化}
-
 \begin{frame}{开始优化之前}
     先对自己进行一些灵魂拷问：
     \begin{itemize}
@@ -303,60 +351,84 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{决策单调性：定义}
-    \begin{block}{决策单调性}
-    在动态规划时，若转移时对于一个状态是单点对单点转移，且令 $k_i$ 表示状态 $i$ 的最优决策点，有 $\forall i< j$ 有 $k_i\le k_j$，则称这个动态规划的过程具有\textbf{决策单调性}。
-    \end{block}
+\begin{frame}{状态的自简化}
+    有时，真正可能 dp 到的状态远少于 dp 状态每一维最大值之积。考虑 AM-GM 不等式来更精细地分析状态数，或者直接使用记忆化搜索来简化代码。
     
-    \begin{block}{判定方式}
-    \begin{enumerate}
-        \item \textbf{打表}：使用朴素 DP 求出每个点的最优决策点，对于每一个点的最优决策点进行比较
-        \item \textbf{四边形不等式法则}与\textbf{区间包含单调性}
-    \end{enumerate}
+    \begin{block}{P5972 [PA 2019] Desant}
+        给定一个 $1$ 到 $n$ 的排列 $a_{1..n}$，它有 $2^n-1$ 个非空子序列。
+
+        请对于每个 $k$，找到一个长度为 $k$ 的子序列，使得这个子序列的逆序对数量最少，并输出逆序对数量最少的子序列的数量。
+
+        对于 $100\%$ 的数据，$1\le k\le n$，$1\le n\le 40$，$1\le a_i\le n,a_i\ne a_j$。
     \end{block}
+    想出最朴素的 DP。我们真正需记录的，也就是前面的状态对后面的影响，是什么？
 \end{frame}
 
-\begin{frame}{决策单调性：四边形不等式}
-    \begin{block}{四边形不等式}
-    对于函数 $w(i,j)$，$\forall p_1\le p_2\le p_3\le p_4$，有如下式子：
-    $$w(p_1,p_3)+w(p_2,p_4)\le w(p_1,p_4)+w(p_2,p_3)$$
-    则我们称函数 $w(i,j)$ 满足\textbf{四边形不等式}。\\
-    记忆为：\textbf{交叉小于等于包含}。
-    \end{block}
-    
-    \begin{block}{区间包含单调性}
-    如果对于函数 $w(i,j)$，如果 $\forall a\le b\le c\le d$，有 $w(b,c)\le w(a,d)$，则称函数 $w(i,j)$ 满足\textbf{区间包含单调性}。
-    \end{block}
+\begin{frame}{状态的自简化}
+\begin{itemize}
+    \item 首先有一个暴力的做法，设 $f_{i,S}$ 表示考虑完前 $i$ 个数，选择了集合 $S$ 的最少逆序对数、方案数。这样做至少是 $O(n2^n)$，非常不优美。我们发现我们只关心比当前位置大的数有多少个，所以我们把 $S$ 中所有数都记录下来是有些多余的。考虑优化状态。
+
+    \item 对于考虑完了前 $i$ 个数，我们把 $i$ 以后的数排序，记为 $x_1,x_2,\cdots$，我们只需要记录 $[1,x_1),(x_2,x_3),\cdots,(x_{end},n]$ 这样每个区间内选了多少个数即可。于是我们可以设状态 $f_{i,T_1,T_2,\cdots}$，$T_i$ 表示第 $i$ 个区间内选了多少个数。
+
+    \item 可以证明时间复杂度渐进上界为 $O(n^23^\frac{n}3)$。
+\end{itemize}
+
 \end{frame}
 
-\begin{frame}{决策单调性：1D/1D 动态规划}
-    \begin{block}{标准形式}
-    $$f[i]=\min\{f[j]+w(j,i)\}(0\le j< i)$$
-    \end{block}
+% \begin{frame}{决策单调性：定义}
+%     \begin{block}{决策单调性}
+%     在动态规划时，若转移时对于一个状态是单点对单点转移，且令 $k_i$ 表示状态 $i$ 的最优决策点，有 $\forall i< j$ 有 $k_i\le k_j$，则称这个动态规划的过程具有\textbf{决策单调性}。
+%     \end{block}
     
-    \begin{alertblock}{定理}
-    如果这个式子中 $w(j,i)$ 满足\textbf{四边形不等式}，则整个动态规划的过程具有\textbf{决策单调性}。
-    \end{alertblock}
-    
-    \begin{block}{优化效果}
-    使用决策单调性可以将复杂度从 $O(n^2)$ 优化至 $O(n\log n)$。
-    \end{block}
-\end{frame}
+%     \begin{block}{判定方式}
+%     \begin{enumerate}
+%         \item \textbf{打表}：使用朴素 DP 求出每个点的最优决策点，对于每一个点的最优决策点进行比较
+%         \item \textbf{四边形不等式法则}与\textbf{区间包含单调性}
+%     \end{enumerate}
+%     \end{block}
+% \end{frame}
 
-\begin{frame}{决策单调性：优化方法}
-    \begin{block}{二分单调队列}
-    \begin{itemize}
-        \item 每一个状态都有一个\textbf{决策表}，存储当前的最优决策
-        \item 当状态 $i$ 转移完成后，找到一个最小的位置，使这个位置由 $i$ 转移比目前决策表的转移\textbf{更优}
-        \item 根据决策单调性，该位置之后的位置，其决策表都更新为 $i$
-        \item 这些段形容成三元组 $s(x,l,r)$，表示 $[l,r]$ 的状态最优转移点为 $x$
-    \end{itemize}
-    \end{block}
+% \begin{frame}{决策单调性：四边形不等式}
+%     \begin{block}{四边形不等式}
+%     对于函数 $w(i,j)$，$\forall p_1\le p_2\le p_3\le p_4$，有如下式子：
+%     $$w(p_1,p_3)+w(p_2,p_4)\le w(p_1,p_4)+w(p_2,p_3)$$
+%     则我们称函数 $w(i,j)$ 满足\textbf{四边形不等式}。\\
+%     记忆为：\textbf{交叉小于等于包含}。
+%     \end{block}
     
-    \begin{block}{分治优化}
-    如果状态间转移无依赖，可以使用分治优化，时间复杂度仍为 $O(n\log n)$。
-    \end{block}
-\end{frame}
+%     \begin{block}{区间包含单调性}
+%     如果对于函数 $w(i,j)$，如果 $\forall a\le b\le c\le d$，有 $w(b,c)\le w(a,d)$，则称函数 $w(i,j)$ 满足\textbf{区间包含单调性}。
+%     \end{block}
+% \end{frame}
+
+% \begin{frame}{决策单调性：1D/1D 动态规划}
+%     \begin{block}{标准形式}
+%     $$f[i]=\min\{f[j]+w(j,i)\}(0\le j< i)$$
+%     \end{block}
+    
+%     \begin{alertblock}{定理}
+%     如果这个式子中 $w(j,i)$ 满足\textbf{四边形不等式}，则整个动态规划的过程具有\textbf{决策单调性}。
+%     \end{alertblock}
+    
+%     \begin{block}{优化效果}
+%     使用决策单调性可以将复杂度从 $O(n^2)$ 优化至 $O(n\log n)$。
+%     \end{block}
+% \end{frame}
+
+% \begin{frame}{决策单调性：优化方法}
+%     \begin{block}{二分单调队列}
+%     \begin{itemize}
+%         \item 每一个状态都有一个\textbf{决策表}，存储当前的最优决策
+%         \item 当状态 $i$ 转移完成后，找到一个最小的位置，使这个位置由 $i$ 转移比目前决策表的转移\textbf{更优}
+%         \item 根据决策单调性，该位置之后的位置，其决策表都更新为 $i$
+%         \item 这些段形容成三元组 $s(x,l,r)$，表示 $[l,r]$ 的状态最优转移点为 $x$
+%     \end{itemize}
+%     \end{block}
+    
+%     \begin{block}{分治优化}
+%     如果状态间转移无依赖，可以使用分治优化，时间复杂度仍为 $O(n\log n)$。
+%     \end{block}
+% \end{frame}
 
 \begin{frame}{斜率优化}
     \begin{block}{适用条件}
@@ -376,60 +448,71 @@
     复杂度为 $O(n)$ 或 $O(n\log n)$，取决于斜率和决策点是否单调
 \end{frame}
 
-\begin{frame}{WQS 二分}
-    \begin{block}{适用问题}
-    \begin{itemize}
-        \item 有一个限制维度很难处理（如恰好选 $k$ 个）
-        \item 答案关于这一维具有凸性
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{基本思路}
-    \begin{enumerate}
-        \item 去掉"恰好选 $k$ 个"的限制
-        \item 二分一个代价 $c$，每选一个就额外付出代价 $c$
-        \item 找到使得恰好选 $k$ 个的代价 $c$
-        \item 原问题的答案就是 $f[n] - k\cdot c$
-    \end{enumerate}
-    \end{block}
-    
-    \begin{alertblock}{关键}
-    需要证明答案关于选择数量的凸性！
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}{状态优化：换元与合并}
-    \begin{block}{下标换元}
-    令 $g_i$ 表示 $f_{t(i)}$ 然后对 $g$ 做 DP：
-    \begin{itemize}
-        \item 能方便一些转移优化
-        \item 常能暴露出一些不必记或不必分开记的状态
-        \item 触发状态数的自简化或状态合并
-    \end{itemize}
-    \end{block}
-    
-    \begin{block}{状态合并}
-    在初步设计 DP 时，可能会设计一些含义较好理解的，但实际上有些信息没有必要区分的 DP 状态，可以在进一步分析时合并。
+\begin{frame}{斜率优化}
+    \begin{block}{P3195 [HNOI2008] 玩具装箱}
+        将 $n$ 个编号为 $1 \dots n$ 的玩具按编号连续地分成若干组，放入不同的容器中，求最小化所有容器的总费用。
+        
+        容器长度计算：若将编号从 $i$ 到 $j$ 的玩具放入同一个容器，容器的占用长度为：$$x = (j - i) + \sum_{k=i}^{j} C_k$$注：$(j - i)$ 表示玩具之间的单位填充物数量。
     \end{block}
 \end{frame}
 
-\begin{frame}{最优化专用优化}
-    \begin{block}{最优性去状态}
-    利用一些性质去除不必要记的状态：
+\begin{frame}{斜率优化}
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{s1.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{斜率优化}
+    \begin{center}
+        \includegraphics[width=0.9\textwidth]{s2.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Slope trick}
     \begin{itemize}
-        \item 这个状态不可能生成最优解
-        \item 或有多条路线可以生成最优解，去掉其中的部分
+        \item Slope Trick 就是用数据结构维护呈凸性的 DP 值以优化复杂度。常见的形式有：
+
+        $$
+        f_{i,j}=\left|j-a_i\right|+\min_{k=L_j}^{R_j} f_{i-1,k}
+        $$
+
+        \item 由于绝对值函数是凸函数，因此经常在 Slope Trick 相关题目中出现。
     \end{itemize}
+
+    \begin{block}{P4597 序列 sequence}
+        给定一个序列，每次操作可以把某个数 +1 或 −1。要求把序列变成非降数列。求最少操作次数。
     \end{block}
-    
-    \begin{block}{最优性换维}
-    交换一维状态和所记值：
+\end{frame}
+
+\begin{frame}{Slope trick}
+    考虑 $f(x)=\left|x-v\right|$ 函数长啥样的。
+
     \begin{itemize}
-        \item 将求"某种情况下最优的……值"
-        \item 转为求"要达到最优值为……，某维的值至少/多要达到多少"
-        \item \textbf{注意}：要刻意证明最优子结构！
+        \item 当 $x<v$ 时，$f(x)$ 随 $x$ 递减而递增，斜率为 $-1$。
+        \item 当 $x>v$ 时，$f(x)$ 随 $x$ 递增而递增，斜率为 $1$。
     \end{itemize}
-    \end{block}
+
+    因此是凸的。
+
+    设 $f_i(x)=f_{i,x}$，那么 $f_0(x)=0$ 也可以看作是凸的。
+
+    对一个凸函数 $f(x)$ 做前缀 $\min$ 可以分类讨论：
+
+    - 当 $f(i)<f(i-1)$ 时（斜率为负），$f(i)$ 更优。
+    - 当 $f(i)=f(i-1)$ 时（斜率为 $0$），$f(i)$ 取全局最小值。
+    - 当 $f(i)>f(i-1)$ 时（斜率为正），因为到 $i$ 时已经经过上一种情况，因此 $f(i)\ge \min f(x)$，$f(i)$ 取全局最小值。
+\end{frame}
+
+\begin{frame}{Slope trick}
+    由上，做前缀 $\min$ 可以看成将后面一段斜率为正的推平成全局最小值（即修改斜率为 $0$），因此做完还是凸的。
+
+    因为凸函数相加还是凸函数，可以推得 $f_i(x)$ 是凸的。
+
+    考虑用优先队列维护拐点横坐标，每经过一个拐点斜率加 $1$（当在一个位置的斜率差大于 $1$ 时也要对应加入相同个数的拐点），加绝对值函数相当于在 $a_i$ 处加入两个拐点（$-1$ 和 $1$ 差了 $2$，加入后斜率差也会加 $2$）。
+
+    做完前面的，目前第一条直线的斜率会是 $-i$（因为加入了 $i$ 个绝对值函数，当一个点的横坐标比 $a_i$ 的最小值还小时，所有绝对值函数的贡献均为 $-1$，斜率就会是 $-i$）。做前缀 $\min$ 推平就是只保留前 $i$ 个拐点（只保留斜率为 $-i$ 到 $0$ 的直线，对应的只有 $i$ 个拐点）。
+
+    习题：[APOI2016] 烟花表演
 \end{frame}
 
 \begin{frame}{数据结构优化}
@@ -439,34 +522,105 @@
         \item \textbf{单调队列/单调栈}：维护滑动窗口最值
         \item \textbf{平衡树}：动态维护有序序列
         \item \textbf{树状数组}：维护前缀和、区间和
+        \item \textbf{李超树}：维护刚刚说的斜率优化的凸壳
     \end{enumerate}
     \end{block}
     
-    \begin{alertblock}{注意}
-    数据结构优化往往是在其他优化之后的最后一步，不要一开始就想着用数据结构硬上。
-    \end{alertblock}
+    注意：数据结构优化往往是在其他优化之后的最后一步，不要一开始就想着用数据结构硬上。
 \end{frame}
 
-\begin{frame}{DP 优化：一般流程}
-    \begin{block}{优化流程}
-    \begin{enumerate}
-        \item \textbf{分析模型}：找全性质，确定 DP 对象
-        \item \textbf{设计状态}：尽可能少的状态维度
-        \item \textbf{写出方程}：清晰的转移方程
-        \item \textbf{观察方程}：
+\begin{frame}{延迟决策}
+    \begin{block}{核心思想}
+    \begin{itemize}
+        \item 给每个对象决策属性，贡献与每个对象的属性相关。
+        \item 难以找到一个顺序，使得前面决策的属性不会再影响贡献。
+        \item \textbf{引入单调标准}：把所有决策分作两部分。
             \begin{itemize}
-                \item 组合意义
-                \item 转移方程的特征（四边形不等式、凸性等）
-                \item 转移图的特点
+                \item \textbf{确定部分}：不会再影响贡献。
+                \item \textbf{待定部分}：有可能会再影响贡献。
             \end{itemize}
-        \item \textbf{选择优化}：
-            \begin{itemize}
-                \item 状态优化：换元、合并、去除
-                \item 转移优化：决策单调性、斜率优化、WQS 二分
-                \item 数据结构：线段树、单调队列等
-            \end{itemize}
-    \end{enumerate}
+    \end{itemize}
     \end{block}
+    
+    \begin{block}{具体操作}
+    记录这个标准，下一个对象的决策分为：
+    \begin{itemize}
+        \item 让它的属性作为确定部分
+        \item 让它的属性作为待定部分
+        \item 在标准发生改变时，处理从待定进入确定的决策
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{延迟决策}
+    \begin{block}{P14364 [CSP-S 2025] 员工招聘}
+        有 $n$ 个人按照排列 $p$ 面试，给定一个 $01$ 串 $s$，如果 $s_i = 0$ 就有黑幕不会录取。每个人有耐心值 $c$，如果在他前面面试失败了至少 $c$ 个人就会放弃。求有多少种排列 $p$ 使得至少录取 $m$ 人。
+    \end{block}
+
+    把计数排列看作天和人的匹配。按值域考虑每个人和哪个匹配。大致为 $dp(i,j)$ 表示 $c\le i$ 的人里有 $j$ 个面试失败的方案数。
+
+    然后就发现当决策一个人面试失败的时候并不只涉及 $c$ 比它小的人，因为可以让一个 $c$ 大的人遇到 $0$，所以还要额外记录后面有多少个人面试失败了。
+
+    为了避免记录每个人的状态，我们要考虑这个单调的标准，从而把同属于 "确定" 或 "待定" 的人能同类看待。
+\end{frame}
+
+\begin{frame}{延迟决策}
+    把 $(i,c_{p_i})$ 在坐标系上画成柱状图，画一条左下到右上的折线表示每一天的失败人数变化。这样就容易看出因为折线是单调向上的，所以在某次折线达到 $x$ 的高度后，之后耐心值 $\le x$ 的人都不可能被录取，而 $>x$ 的人只要放在 $1$ 的位置就一定会被录取。\strong{这就是单调的标准}。
+
+    所以考虑把人分作耐心值 $\le x,>x$ 考虑。因为 $x$ 是单调上升的，所以过程中会有一些 $>x$ 的人进入 $\le x$，但是 $\le x$ 的永远会 $\le x$。所以 "$\le x$ 的人" 是确定的部分，"$>x$ 的人" 是不确定的部分。考虑设 $dp(i,j,k)$ 表示决策前 $i$ 天的安排、有 $j$ 个人失败、有 $k$ 个位置的人耐心值 $>j$（等待后面决策），在 $dp$ 里只决策前 $i$ 天耐心值 $\le j$ 的方案数。
+\end{frame}
+
+\begin{frame}{延迟决策}
+    使用刷表法转移。考虑第 $i+1$ 天的人是要失败还是要通过。记 $cnt_i$ 表示耐心值为 $i$ 的人数，$sc$ 为 $cnt$ 的前缀和。
+
+    1. $s_{i+1}=0$。
+
+    必须失败。分类讨论 $c_{p_{i+1}}$ 与 $j+1$ 的大小关系，并把 $k$ 个人里 $=j+1$ 的纳入考虑。
+
+    - $c_{p_{i+1}}>j+1$。
+        
+    $$
+    \sum_{w=0}^k\binom{k}{w}\binom{cnt_{j+1}}{w}w!dp(i,j,k)\rightarrow dp(i+1,j+1,k-w+1)
+    $$
+
+    - $c_{p_{i+1}}\le j+1$。
+        
+    $$
+    \sum_{w=0}^k\binom{k}{w}\binom{cnt_{j+1}}{w}w!(sc_{j+1}-(i-(k-w))dp(i,j,k) \rightarrow dp(i+1,j+1,k-w)
+    $$
+\end{frame}
+
+\begin{frame}{延后决策}
+    2. $s_{i+1}=1$。
+
+    - $c_{p_{i+1}}>j$，此时会录取，$j$ 不变。
+        
+        $$
+        dp(i,j,k)\rightarrow dp(i+1,j,k+1)
+        $$
+
+    - $c_{p_{i+1}}\le j$，此时会放弃，$j$ 加一。
+        
+        $$
+        \sum_{w=0}^k\binom{k}{w}\binom{cnt_{j+1}}{w}w!(sc_{j+1}-(i-k))dp(i,j,k)\rightarrow dp(i+1,j+1,k-w)
+        $$
+
+    虽然看起来要枚举 $w$ 是 $O(n^4)$ 的，但因为总人数 $O(n)$，所以 $w$ 一共只能枚举 $n$ 次。故总复杂度是 $O(n^3)$ 的。
+\end{frame}
+
+\begin{frame}{延后决策}
+    \begin{block}{P14637 [NOIP2025] 树的价值 $48$ 分部分分}
+        给定一棵 1 为根，$n$ 个点的有根树，$i$ 的父亲为结点 $p_i$。
+
+        定义结点 $i$ 的深度 $d_i$ 为结点 1 到结点 $i$ 的简单路径的边数。
+
+        你需要给每个结点设置一个非负整数作为它的权值。若结点 $i$ 的权值为 $a_i$，令 $S_i$ 表示结点 $i$ 的子树中结点权值构成的集合。对于每一种权值设置方案，定义树的价值为 $\sum_{i=1}^{n} \mathrm{mex}(S_i)$。
+
+        你需要求出，在所有权值设置方案中，树的价值的最大值。
+
+        部分分是 $1 \le n \le 200$。
+    \end{block}
+    什么是待决策的？什么是变了之后就变不回来的？
 \end{frame}
 
 \section{致谢}
